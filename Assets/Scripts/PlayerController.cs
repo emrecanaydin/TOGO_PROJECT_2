@@ -51,10 +51,15 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetFloat("MoveSpeed", fixedJoystick.Vertical + fixedJoystick.Horizontal);
 
         Vector3 position = new Vector3(horizontal * speed* Time.deltaTime, 0, vertical * speed * Time.deltaTime);
+        Vector3 rotation = Vector3.forward * vertical + Vector3.right * horizontal;
+
         transform.position += position;
 
-        Vector3 rotation = Vector3.forward * vertical + Vector3.right * horizontal;
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(rotation), turnSpeed * Time.deltaTime);
+        if(rotation != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(rotation), turnSpeed * Time.deltaTime);
+        }
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -65,15 +70,17 @@ public class PlayerController : MonoBehaviour
             {
                 int random = Random.Range(0, collision.transform.childCount);
                 selectedObj = collision.transform.GetChild(random).gameObject;
-                playerRenderer.material = selectedObj.GetComponent<Renderer>().material;
-                collision.transform.GetChild(random).transform.parent = transform;
+                selectedObj.transform.parent = transform;
                 selectedObj.transform.position = new Vector3(transform.position.x, 1.35f, transform.position.z);
+                playerRenderer.material = selectedObj.GetComponent<Renderer>().material;
             }
         }
         if (collision.gameObject.CompareTag("CubeGreen")) {
             if (selectedObj)
             {
+                float posY = collision.transform.childCount + 1;
                 selectedObj.transform.parent = collision.transform;
+                selectedObj.transform.position = new Vector3(collision.transform.position.x, posY, collision.transform.position.z);
                 playerRenderer.material = defaultMaterial;
                 if (selectedObj.tag == "CollectableGreen")
                 {
@@ -90,7 +97,9 @@ public class PlayerController : MonoBehaviour
         {
             if (selectedObj)
             {
+                float posY = collision.transform.childCount + 1;
                 selectedObj.transform.parent = collision.transform;
+                selectedObj.transform.position = new Vector3(collision.transform.position.x, posY, collision.transform.position.z);
                 playerRenderer.material = defaultMaterial;
                 if (selectedObj.tag == "CollectableRed")
                 {
