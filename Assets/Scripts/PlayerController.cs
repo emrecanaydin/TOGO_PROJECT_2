@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     public FixedJoystick fixedJoystick;
     public Rigidbody rb;
     public TextMeshProUGUI score_text;
+    public Animator playerAnimator;
 
     public GameObject winPanel;
     public GameObject lostPanel;
@@ -24,6 +25,7 @@ public class PlayerController : MonoBehaviour
 
     public void Start()
     {
+        playerAnimator = GetComponent<Animator>();
         playerRenderer = transform.GetChild(1).GetComponent<Renderer>();
         defaultMaterial = playerRenderer.material;
         totalCollectableItem = GameObject.FindGameObjectsWithTag("CollectableRed").Length + GameObject.FindGameObjectsWithTag("CollectableGreen").Length;
@@ -35,6 +37,9 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButton("Fire1"))
         {
             JoystickController();
+        } else
+        {
+            playerAnimator.SetFloat("MoveSpeed", 0);
         }
     }
 
@@ -42,6 +47,8 @@ public class PlayerController : MonoBehaviour
     {
         float horizontal = fixedJoystick.Horizontal;
         float vertical = fixedJoystick.Vertical;
+
+        playerAnimator.SetFloat("MoveSpeed", fixedJoystick.Vertical + fixedJoystick.Horizontal);
 
         Vector3 position = new Vector3(horizontal * speed* Time.deltaTime, 0, vertical * speed * Time.deltaTime);
         transform.position += position;
